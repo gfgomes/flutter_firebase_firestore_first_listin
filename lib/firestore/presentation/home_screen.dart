@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: ListTile(
                         onTap: () {
                           //Quando clicar em um Listin
-                          Navigator.pushReplacement(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
