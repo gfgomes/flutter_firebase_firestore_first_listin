@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_firestore_first/firestore/helpers/firestore_analytics.dart';
 import 'package:uuid/uuid.dart';
@@ -56,17 +57,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   listListins.length,
                   (index) {
                     Listin model = listListins[index];
-                    return ListTile(
-                      onTap: () {
-                        //Quando clicar em um Listin
+                    return Dismissible(
+                      key: ValueKey<Listin>(model),
+                      onDismissed: (direction) {
+                        remove(model);
                       },
-                      onLongPress: () {
-                        //Quando pressiona um Listin
-                        showFormModal(model: model);
-                      },
-                      leading: const Icon(Icons.list_alt_rounded),
-                      title: Text(model.name),
-                      subtitle: Text(model.id),
+                      child: ListTile(
+                        onTap: () {
+                          //Quando clicar em um Listin
+                        },
+                        onLongPress: () {
+                          //Quando pressiona um Listin
+                          showFormModal(model: model);
+                        },
+                        leading: const Icon(Icons.list_alt_rounded),
+                        title: Text(model.name),
+                        subtitle: Text(model.id),
+                      ),
                     );
                   },
                 ),
@@ -180,5 +187,10 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       listListins = temp;
     });
+  }
+
+  remove(Listin model) async {
+    await firestore.collection("listins").doc(model.id).delete();
+    refresh();
   }
 }
