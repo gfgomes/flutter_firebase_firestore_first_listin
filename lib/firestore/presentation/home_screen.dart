@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_firestore_first/firestore/helpers/firestore_analytics.dart';
 import 'package:uuid/uuid.dart';
 import '../models/listin.dart';
 
@@ -14,10 +15,12 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Listin> listListins = [];
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  FirestoreAnalytics analytics = FirestoreAnalytics();
 
   @override
   void initState() {
     refresh();
+    analytics.incrementarAcessosTotais();
     super.initState();
   }
 
@@ -44,7 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
           : RefreshIndicator(
-              onRefresh: () => refresh(),
+              onRefresh: () {
+                analytics.incrementarAtualizacoesManuais();
+                return refresh();
+              },
               child: ListView(
                 children: List.generate(
                   listListins.length,
@@ -118,9 +124,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           id: const Uuid().v1(),
                           name: nameController.text,
                         );
+
+                        //Salavar no Firestore
                         firestore.collection("listins").doc(listin.id).set(
                               listin.toMap(),
                             );
+
+                        analytics.incrementarListasAdicionadas();
+
                         refresh();
                         //Fecha o modal
                         Navigator.pop(context);
