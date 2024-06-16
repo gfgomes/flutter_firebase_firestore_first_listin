@@ -70,6 +70,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
               return ListTileProduto(
                 produto: produto,
                 isComprado: false,
+                showModel: showFormModal,
               );
             }),
           ),
@@ -91,6 +92,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
               return ListTileProduto(
                 produto: produto,
                 isComprado: true,
+                showModel: showFormModal,
               );
             }),
           ),
@@ -222,7 +224,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                         produto.price = double.parse(priceController.text);
                       }
 
-                      // TODO: Salvar no Firestore
+                      // Salva no Firestore
                       firestore
                           .collection("listins")
                           .doc(widget.listin.id)

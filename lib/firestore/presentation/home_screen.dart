@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_firestore_first/firestore/helpers/firestore_analytics.dart';
 import 'package:flutter_firebase_firestore_first/firestore_produtos/presentation/produto_screen.dart';
