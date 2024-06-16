@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_firestore_first/firestore_produtos/helpers/enum_order.dart';
@@ -33,10 +35,22 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   OrdemProduto ordem = OrdemProduto.name;
   bool isDecrescente = false;
 
+  late StreamSubscription listener;
+
   @override
   void initState() {
-    refresh();
+    //Removido pois o firebase avisa quando um alteração ocorre
+    //refresh();
+    setupListeners();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    //Ao encerrar a tela, fecha a c o listener
+    listener.cancel();
+
+    super.dispose();
   }
 
   @override
@@ -286,8 +300,9 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                           .doc(produto.id)
                           .set(produto.toMap());
 
+                      //Removido pois o firebase avisa quando um alteração ocorre
                       // Atualizar a lista
-                      refresh();
+                      //refresh();
 
                       // Fechar o Modal
                       Navigator.pop(context);
@@ -303,15 +318,18 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     );
   }
 
-  refresh() async {
+  refresh({QuerySnapshot<Map<String, dynamic>>? snapshot}) async {
     List<Produto> temp = [];
-    QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+
+    snapshot ??= await firestore
         .collection("listins")
         .doc(widget.listin.id)
         .collection("produtos")
         //.where("isComprado", isEqualTo: isComprado)
         .orderBy(ordem.name, descending: isDecrescente)
         .get();
+
+    verificaAlteracoes(snapshot);
 
     for (var doc in snapshot.docs) {
       temp.add(Produto.fromMap(doc.data()));
@@ -347,6 +365,49 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .doc(produto.id)
         .update({"isComprado": produto.isComprado});
 
-    refresh();
+    //Removido pois o firebase avisa quando um alteração ocorre
+    //refresh();
+  }
+
+  setupListeners() {
+    listener = firestore
+        .collection("listins")
+        .doc(widget.listin.id)
+        .collection("produtos")
+        .orderBy(ordem.name, descending: isDecrescente)
+        .snapshots()
+        .listen((snapshot) {
+      refresh(snapshot: snapshot);
+    });
+  }
+
+  verificaAlteracoes(QuerySnapshot<Map<String, dynamic>> snapshot) {
+    if (snapshot.docChanges.length == 1) {
+      for (var change in snapshot.docChanges) {
+        String tipoAlteracao = "";
+        Color cor = Colors.green;
+        switch (change.type) {
+          case DocumentChangeType.added:
+            //print("New City: ${change.doc.data()}");
+            tipoAlteracao = "Produto adicionado:";
+            break;
+          case DocumentChangeType.modified:
+            tipoAlteracao = "Produto alterado:";
+            cor = Colors.yellow;
+            break;
+          case DocumentChangeType.removed:
+            tipoAlteracao = "Produto removido:";
+            cor = Colors.red;
+            break;
+        }
+        Produto produto = Produto.fromMap(change.doc.data()!);
+        final snackBar = SnackBar(
+          backgroundColor: cor,
+          content: Text("$tipoAlteracao ${produto.name}"),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
   }
 }
