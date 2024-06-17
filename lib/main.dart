@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_firebase_firestore_first/_core/my_colors.dart';
 import 'package:flutter_firebase_firestore_first/authentication/screens/auth_screen.dart';
 import 'package:flutter_firebase_firestore_first/firestore/presentation/home_screen.dart';
+import 'package:flutter_firebase_firestore_first/storage/storage_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -53,7 +54,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       //home: const HomeScreen(),
-      home: const RoteadorTelas(),
+      home: const StorageScreen(), //const RoteadorTelas(),
     );
   }
 }
