@@ -21,6 +21,10 @@ class StorageService {
         .getDownloadURL();
   }
 
+  Future<void> deleteByReference({required Reference ref}) async {
+    return await ref.delete();
+  }
+
   // Future<List<String>> listAllFiles() async {
   //   ListResult listResult = await _firebaseStorage.ref(pathService).listAll();
   //   List<Reference> listReferences = listResult.items;
@@ -42,7 +46,7 @@ class StorageService {
     for (Reference reference in listReferences) {
       String urlDownload = await reference.getDownloadURL();
       String name = reference.name;
-      
+
       //Pega informações adicionais sobre o arquivo
       FullMetadata metadados = await reference.getMetadata();
       int? size = metadados.size;
