@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_firebase_firestore_first/authentication/component/show_senha_confirmacao_dialog.dart';
 import 'package:flutter_firebase_firestore_first/authentication/services/auth_service.dart';
 import 'package:flutter_firebase_firestore_first/firestore/helpers/firestore_analytics.dart';
+import 'package:flutter_firebase_firestore_first/firestore/services/listin_service.dart';
 import 'package:flutter_firebase_firestore_first/firestore_produtos/presentation/produto_screen.dart';
 import 'package:uuid/uuid.dart';
 import '../models/listin.dart';
@@ -17,8 +18,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Listin> listListins = [];
 
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  //FirebaseFirestore firestore = FirebaseFirestore.instance;
   FirestoreAnalytics analytics = FirestoreAnalytics();
+  ListinService listinService = ListinService();
 
   @override
   void initState() {
@@ -94,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.white,
                           )),
                       onDismissed: (direction) {
-                        remove(model);
+                        listinService.removeListin(model);
                       },
                       child: ListTile(
                         onTap: () {
@@ -189,9 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
 
                         //Salavar no Firestore
-                        firestore.collection("listins").doc(saveListin.id).set(
-                              saveListin.toMap(),
-                            );
+                        listinService.adicionarListin(saveListin);
 
                         analytics.incrementarListasAdicionadas();
 
@@ -210,26 +210,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   refresh() async {
-    List<Listin> temp = [];
+    List<Listin> temp = await listinService.lerListins();
 
     // listListins = (await firestore.collection("listins").get())
     //     .docs
     //     .map((doc) => Listin.fromMap(doc.data()))
     //     .toList();
-    QuerySnapshot<Map<String, dynamic>> snapshot =
-        await firestore.collection("listins").get();
+    // QuerySnapshot<Map<String, dynamic>> snapshot =
+    //     await firestore.collection("listins").get();
 
-    for (var doc in snapshot.docs) {
-      temp.add(Listin.fromMap(doc.data()));
-    }
+    // for (var doc in snapshot.docs) {
+    //   temp.add(Listin.fromMap(doc.data()));
+    // }
 
     setState(() {
       listListins = temp;
     });
-  }
-
-  remove(Listin model) async {
-    await firestore.collection("listins").doc(model.id).delete();
-    refresh();
   }
 }

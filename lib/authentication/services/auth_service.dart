@@ -24,8 +24,8 @@ class AuthService {
 
 //gabriel.fgomes@gmail.com - Sem display name
 //123456 - min. 6 digitos
-//gabriel.fgomes2@gmail.com - Gabriel F Gomes
-//riel
+//gabriel.fgomes7@gmail.com - Gabriel F Gomes
+//123456
   Future<String?> cadastrarUsuario({
     required String email,
     required String senha,
