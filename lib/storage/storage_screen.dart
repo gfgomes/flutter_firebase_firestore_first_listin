@@ -20,6 +20,12 @@ class _StorageScreenState extends State<StorageScreen> {
   final StorageService _storageService = StorageService();
 
   @override
+  void initState() {
+    reload();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -70,12 +76,34 @@ class _StorageScreenState extends State<StorageScreen> {
             ),
             const Text(
               "Histórico de imagens",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(
+              height: 16,
             ),
             Column(
               children: List.generate(listFiles.length, (index) {
                 String url = listFiles[index];
-                return Image.network(url);
+                return ListTile(
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Image.network(
+                      url,
+                      height: 48,
+                      width: 48,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  title: const Text("Nome da imagem"),
+                  subtitle: const Text("Tamanho da imagem"),
+                  trailing: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                );
               }),
             ),
           ],
@@ -105,11 +133,14 @@ class _StorageScreenState extends State<StorageScreen> {
               //showSnackBar(context: context, message: image.path, isError: false);
 
               _storageService
-                  .upload(file: File(image.path), fileName: "user_photo")
+                  .upload(
+                      file: File(image.path),
+                      fileName: "user_photo_${DateTime.now().toString()}")
                   .then(
                 (urlDownload) {
                   setState(() {
                     urlPhoto = urlDownload;
+                    reload();
                   });
                 },
               );
@@ -124,13 +155,21 @@ class _StorageScreenState extends State<StorageScreen> {
   }
 
   reload() {
-    _storageService.getDownloadUrlByFileName(fileName: "user_photo").then(
-      (urlDownload) {
-        setState(
-          () {
-            urlPhoto = urlDownload;
-          },
-        );
+    // _storageService.getDownloadUrlByFileName(fileName: "user_photo").then(
+    //   (urlDownload) {
+    //     setState(
+    //       () {
+    //         urlPhoto = urlDownload;
+    //       },
+    //     );
+    //   },
+    // );
+
+    _storageService.listAllFiles().then(
+      (List<String> listUrlsDownload) {
+        setState(() {
+          listFiles = listUrlsDownload;
+        });
       },
     );
   }

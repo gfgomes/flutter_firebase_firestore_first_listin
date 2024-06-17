@@ -19,4 +19,16 @@ class StorageService {
         .ref("$pathService/$fileName.png")
         .getDownloadURL();
   }
+
+  Future<List<String>> listAllFiles() async {
+    ListResult listResult = await _firebaseStorage.ref(pathService).listAll();
+    List<Reference> listReferences = listResult.items;
+    List<String> listFiles = [];
+
+    for (var reference in listReferences) {
+      String url = await reference.getDownloadURL();
+      listFiles.add(url);
+    }
+    return listFiles;
+  }
 }
