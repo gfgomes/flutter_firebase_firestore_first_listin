@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_firestore_first/authentication/component/show_snackbar.dart';
+import 'package:flutter_firebase_firestore_first/storage/models/image_custom_info.dart';
 import 'package:flutter_firebase_firestore_first/storage/services/storage_service.dart';
 import 'package:flutter_firebase_firestore_first/storage/widgets/source_modal_widget.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,7 +16,7 @@ class StorageScreen extends StatefulWidget {
 
 class _StorageScreenState extends State<StorageScreen> {
   String? urlPhoto;
-  List<String> listFiles = [];
+  List<ImageCustomInfo> listFiles = [];
 
   final StorageService _storageService = StorageService();
 
@@ -86,19 +87,19 @@ class _StorageScreenState extends State<StorageScreen> {
             ),
             Column(
               children: List.generate(listFiles.length, (index) {
-                String url = listFiles[index];
+                ImageCustomInfo imageCustomInfo = listFiles[index];
                 return ListTile(
                   leading: ClipRRect(
                     borderRadius: BorderRadius.circular(24),
                     child: Image.network(
-                      url,
+                      imageCustomInfo.urlDownload,
                       height: 48,
                       width: 48,
                       fit: BoxFit.cover,
                     ),
                   ),
-                  title: const Text("Nome da imagem"),
-                  subtitle: const Text("Tamanho da imagem"),
+                  title: Text(imageCustomInfo.name),
+                  subtitle: Text(imageCustomInfo.size),
                   trailing: IconButton(
                     onPressed: () {},
                     icon: const Icon(Icons.delete, color: Colors.red),
@@ -166,9 +167,9 @@ class _StorageScreenState extends State<StorageScreen> {
     // );
 
     _storageService.listAllFiles().then(
-      (List<String> listUrlsDownload) {
+      (List<ImageCustomInfo> listFilesInfo) {
         setState(() {
-          listFiles = listUrlsDownload;
+          listFiles = listFilesInfo;
         });
       },
     );
