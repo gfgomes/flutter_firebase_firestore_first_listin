@@ -25,7 +25,7 @@ class AuthService {
 //gabriel.fgomes@gmail.com - Sem display name
 //123456 - min. 6 digitos
 //gabriel.fgomes2@gmail.com - Gabriel F Gomes
-//12345@A!
+//riel
   Future<String?> cadastrarUsuario({
     required String email,
     required String senha,
@@ -65,6 +65,19 @@ class AuthService {
       return e.code;
     }
 
+    return null;
+  }
+
+  Future<String?> removeConta({required String senha}) async {
+    try {
+      await _firebaseAuth.signInWithEmailAndPassword(
+        email: _firebaseAuth.currentUser!.email!,
+        password: senha,
+      );
+      await _firebaseAuth.currentUser!.delete();
+    } on FirebaseAuthException catch (e) {
+      return e.code;
+    }
     return null;
   }
 }
