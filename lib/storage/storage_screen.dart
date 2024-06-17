@@ -16,7 +16,7 @@ class _StorageScreenState extends State<StorageScreen> {
   String? urlPhoto;
   List<String> listFiles = [];
 
-  final StorageService storageService = StorageService();
+  final StorageService _storageService = StorageService();
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,15 @@ class _StorageScreenState extends State<StorageScreen> {
         child: Column(
           children: [
             (urlPhoto != null)
-                ? Image.network(urlPhoto!)
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(64),
+                    child: Image.network(
+                      urlPhoto!,
+                      height: 128,
+                      width: 128,
+                      fit: BoxFit.cover,
+                    ),
+                  )
                 : const CircleAvatar(
                     radius: 64,
                     child: Icon(Icons.person),
@@ -89,7 +97,15 @@ class _StorageScreenState extends State<StorageScreen> {
         if (image != null) {
           //showSnackBar(context: context, message: image.path, isError: false);
 
-          storageService.upload(file: File(image.path), fileName: "user_photo");
+          _storageService
+              .upload(file: File(image.path), fileName: "user_photo")
+              .then(
+            (urlDownload) {
+              setState(() {
+                urlPhoto = urlDownload;
+              });
+            },
+          );
         } else {
           showSnackBar(context: context, message: "Nenhuma imagem selecionada");
         }
@@ -97,5 +113,15 @@ class _StorageScreenState extends State<StorageScreen> {
     );
   }
 
-  reload() {}
+  reload() {
+    _storageService.getDownloadUrlByFileName(fileName: "user_photo").then(
+      (urlDownload) {
+        setState(
+          () {
+            urlPhoto = urlDownload;
+          },
+        );
+      },
+    );
+  }
 }
