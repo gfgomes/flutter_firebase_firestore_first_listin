@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_firestore_first/authentication/component/show_snackbar.dart';
+import 'package:flutter_firebase_firestore_first/storage/services/storage_service.dart';
+import 'package:image_picker/image_picker.dart';
 
 class StorageScreen extends StatefulWidget {
   const StorageScreen({super.key});
@@ -10,6 +15,8 @@ class StorageScreen extends StatefulWidget {
 class _StorageScreenState extends State<StorageScreen> {
   String? urlPhoto;
   List<String> listFiles = [];
+
+  final StorageService storageService = StorageService();
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +75,27 @@ class _StorageScreenState extends State<StorageScreen> {
     );
   }
 
-  uploadImage() {}
+  uploadImage() {
+    ImagePicker imagePicker = ImagePicker();
+    imagePicker
+        .pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 2000,
+      maxWidth: 2000,
+      imageQuality: 50,
+    )
+        .then(
+      (XFile? image) {
+        if (image != null) {
+          //showSnackBar(context: context, message: image.path, isError: false);
+
+          storageService.upload(file: File(image.path), fileName: "user_photo");
+        } else {
+          showSnackBar(context: context, message: "Nenhuma imagem selecionada");
+        }
+      },
+    );
+  }
 
   reload() {}
 }
