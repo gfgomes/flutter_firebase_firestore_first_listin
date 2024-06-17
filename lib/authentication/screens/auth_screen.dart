@@ -92,6 +92,15 @@ class _AuthScreenState extends State<AuthScreen> {
                         return null;
                       },
                     ),
+                    Visibility(
+                      visible: isEntrando,
+                      child: TextButton(
+                        onPressed: () {
+                          esqueciMinhaSenha();
+                        },
+                        child: Text("Esqueci minha senha"),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Visibility(
@@ -181,7 +190,16 @@ class _AuthScreenState extends State<AuthScreen> {
 
   _entrarUsuario({required String email, required String senha}) {
     //print("Entrar usuário $email, $senha");
-    authService.entrarUsuario(email: email, senha: senha);
+    authService.entrarUsuario(email: email, senha: senha).then((String? erro) {
+      if (erro == null) {
+        showSnackBar(
+            context: context,
+            message: "Login efetuado com sucesso!",
+            isError: false);
+      } else {
+        showSnackBar(context: context, message: erro);
+      }
+    });
   }
 
   _criarUsuario(
@@ -202,5 +220,57 @@ class _AuthScreenState extends State<AuthScreen> {
         showSnackBar(context: context, message: erro);
       }
     });
+  }
+
+  void esqueciMinhaSenha() async {
+    String email = _emailController.text;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        TextEditingController redefinicaoSenhaController =
+            TextEditingController(text: email);
+        return AlertDialog(
+          title: const Text("Confirme o e-mail para redefinição de senha"),
+          content: TextFormField(
+            controller: redefinicaoSenhaController,
+            decoration: const InputDecoration(label: Text("Confirme o e-mail")),
+          ),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32))),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () async {
+                await authService
+                    .redefineDeSenha(email: redefinicaoSenhaController.text)
+                    .then(
+                  (String? erro) {
+                    if (erro == null) {
+                      showSnackBar(
+                          context: context,
+                          message:
+                              "E-mail de redefinição de senha enviado com sucesso!",
+                          isError: false);
+                    } else {
+                      showSnackBar(context: context, message: erro);
+                    }
+                    Navigator.of(context).pop();
+                  },
+                );
+              },
+              child: const Text("Redefinir senha"),
+            ),
+          ],
+        );
+      },
+    );
+
+    ///
   }
 }

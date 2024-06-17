@@ -3,12 +3,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  entrarUsuario({required String email, required String senha}) {
-    print("METODO ENTRAR USUARIO");
+  Future<String?> entrarUsuario(
+      {required String email, required String senha}) async {
+    try {
+      await _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: senha);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case "user-not-found":
+          return "O e-mail não está cadastrado.";
+        case "wrong-password":
+          return "Senha incorreta.";
+        case "invalid-credential":
+          return "E-mail ou senha incorretos.";
+      }
+      return e.code;
+    }
+    return null;
   }
 
 //gabriel.fgomes@gmail.com - Sem display name
-//12345@A!
+//123456 - min. 6 digitos
 //gabriel.fgomes2@gmail.com - Gabriel F Gomes
 //12345@A!
   Future<String?> cadastrarUsuario({
@@ -24,6 +39,19 @@ class AuthService {
       switch (e.code) {
         case "email-already-in-use":
           return "O e-mail já está em uso.";
+      }
+      return e.code;
+    }
+    return null;
+  }
+
+  Future<String?> redefineDeSenha({required String email}) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case "user-not-found":
+          return "E-mail não encontrado.";
       }
       return e.code;
     }
