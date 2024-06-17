@@ -1,18 +1,23 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_firebase_firestore_first/storage/models/image_custom_info.dart';
 import 'package:image_picker/image_picker.dart';
 
 class StorageService {
-  String pathService = "images";
+  String pathService = FirebaseAuth.instance.currentUser!.uid;
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   Future<String> upload({required File file, required String fileName}) async {
     await _firebaseStorage.ref("$pathService/$fileName.png").putFile(file);
-    return await _firebaseStorage
+
+    String url = await _firebaseStorage
         .ref("$pathService/$fileName.png")
         .getDownloadURL();
+    await firebaseAuth.currentUser!.updatePhotoURL(url);
+    return url;
   }
 
   Future<String> getDownloadUrlByFileName({required String fileName}) async {
@@ -21,8 +26,15 @@ class StorageService {
         .getDownloadURL();
   }
 
-  Future<void> deleteByReference({required Reference ref}) async {
-    return await ref.delete();
+  Future<void> deleteByReference(
+      {required ImageCustomInfo imageCustomInfo}) async {
+    if (firebaseAuth.currentUser!.photoURL != null) {
+      if (firebaseAuth.currentUser!.photoURL! == imageCustomInfo.urlDownload) {
+        await firebaseAuth.currentUser!.updatePhotoURL(null);
+      }
+    }
+
+    return await imageCustomInfo.ref.delete();
   }
 
   // Future<List<String>> listAllFiles() async {
