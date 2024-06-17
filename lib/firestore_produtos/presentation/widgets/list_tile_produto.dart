@@ -6,12 +6,15 @@ class ListTileProduto extends StatelessWidget {
   final bool isComprado;
   final Function showModel;
   final Function iconClick;
+  final Function trailClick;
+
   const ListTileProduto({
     super.key,
     required this.produto,
     required this.isComprado,
     required this.showModel,
     required this.iconClick,
+    required this.trailClick,
   });
 
   @override
@@ -24,6 +27,15 @@ class ListTileProduto extends StatelessWidget {
           (isComprado) ? Icons.shopping_basket : Icons.check,
         ),
       ),
+      trailing: IconButton(
+        icon: const Icon(
+          Icons.delete,
+          color: Colors.red,
+        ),
+        onPressed: () {
+          trailClick(produto);
+        },
+      ), //Icon(Icons.delete),
       title: Text(
         (produto.amount == null)
             ? produto.name
